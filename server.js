@@ -26,13 +26,25 @@ mongoose.connect(process.env.MONGO_URI, {
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'index.html'));
 });
+
 // Create User
 app.post('/api/users', async (req, res) => {
   try {
-    const { username } = req.body;
+    // Handle both JSON and form-data
+    const username = req.body.username || (req.body && req.body.username);
+    
+    if (!username) {
+      return res.status(400).json({ error: 'Username is required' });
+    }
+    
     const newUser = new User({ username });
     const savedUser = await newUser.save();
-    res.json({ username: savedUser.username, _id: savedUser._id });
+    
+    // Return exactly these two properties
+    res.json({ 
+      username: savedUser.username, 
+      _id: savedUser._id 
+    });
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
