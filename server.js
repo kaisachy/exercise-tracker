@@ -1,4 +1,5 @@
 require('dotenv').config();
+const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
@@ -11,9 +12,9 @@ const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(cors());
-app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-app.use(express.static('public'));
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(express.static(path.join(__dirname, 'views')));
 
 // Database connection
 mongoose.connect(process.env.MONGO_URI, { 
@@ -22,6 +23,9 @@ mongoose.connect(process.env.MONGO_URI, {
 });
 
 // Routes
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'views', 'index.html'));
+});
 // Create User
 app.post('/api/users', async (req, res) => {
   try {
